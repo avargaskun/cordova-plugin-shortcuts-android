@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="cordova-plugin-shortcuts-android"
+    version="0.0.1">
+
+    <name>Android Shortcuts</name>
+    
+    <description>
+      &lt;p&gt;This plugin lets you manage dynamic and pinned shortcuts for Android&lt;/p&gt;
+    </description>
+    
+    <license>MIT</license>
+    
+    <js-module src="www/ShortcutsPlugin.js" name="ShortcutsPlugin">
+         <clobbers target="Shortcuts" />
+    </js-module>
+    
+    <engines>
+      <engine name="cordova" version=">=3.0.0" />
+    </engines>
+    
+    <!-- android -->
+    <platform name="android">
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+            <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
+        </config-file>
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="ShortcutsPlugin" >
+                <param name="android-package" value="com.plugins.shortcuts.ShortcutsPlugin"/>
+            </feature>
+        </config-file>
+
+        <!-- cordova plugin src files -->
+        <source-file src="src/android/ShortcutsPlugin.java" target-dir="src/com/plugin/shortcuts" />
+    </platform>
+</plugin>
