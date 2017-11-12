@@ -111,13 +111,9 @@ public class ShortcutsPlugin extends CordovaPlugin {
             }
 
             Icon icon;
-            String iconPath = arg.optString("iconPath");
             String iconBitmap = arg.optString("iconBitmap");
 
-            if (iconPath.length() > 0) {
-                icon = Icon.createWithFilePath(iconPath);
-            }
-            else if (iconBitmap.length() > 0) {
+            if (iconBitmap.length() > 0) {
                 icon = Icon.createWithBitmap(decodeBase64Bitmap(iconBitmap));
             }
             else {
