@@ -2,9 +2,13 @@
 
 ## DESCRIPTION
 
-Use this plug-in to manage App shortcuts on Android from a Cordova application. Supports both pinned and dynamic shortcuts. For more information about App Shortcuts see: https://developer.android.com/guide/topics/ui/shortcuts.html
+Use this plugin to create shortcuts in Android. Use this plugin to handle Intents on your application.
 
-The work that went into creating this plug-in was inspired by the existing [cordova-plugin-shortcut](https://github.com/jorgecis/ShortcutPlugin) which unfortunately no longer works with Android Nougat and later.
+For more information on Android App Shortcuts: https://developer.android.com/guide/topics/ui/shortcuts.html
+
+For more information on Android Intents: https://developer.android.com/guide/components/intents-filters.html
+
+The work that went into creating this plug-in was inspired by the existing plugins: [cordova-plugin-shortcut](https://github.com/jorgecis/ShortcutPlugin) and [cordova-plugin-webintent2](https://github.com/okwei2000/webintent).
 
 ## LICENSE
 
@@ -75,15 +79,54 @@ Use `setDynamic` to set the Dynamic Shortcuts for the application, all at once. 
 ```javascript
 var shortcut = {
 	id: 'my_shortcut_1',
-	data: 'myapp://path/to/launch?param=value',
-	extraSubject: 'Additional text to be included with the intent',
 	shortLabel: 'Short description',
 	longLabel: 'Longer string describing the shortcut',
-	iconBitmap: '<Bitmap for the shortcut icon, base64 encoded>'
+	iconBitmap: '<Bitmap for the shortcut icon, base64 encoded>',
+	intent: {
+		action: 'android.intent.action.RUN',
+		categories: [
+			'android.intent.category.TEST', // Built-in Android category
+			'MY_CATEGORY' // Custom categories are also supported
+		],
+		flags: 67108864, // FLAG_ACTIVITY_CLEAR_TOP
+		data: 'myapp://path/to/launch?param=value', // Must be a well-formed URI
+		extras: {
+			'android.intent.extra.SUBJECT': 'Hello world!', // Built-in Android extra (string)
+			'MY_BOOLEAN': true, // Custom extras are also supported (boolean, number and string only)
+		}
+	}
 }
 window.plugins.Shortcuts.setDynamic([shortcut], function() {
 	window.alert('Shortcuts were applied successfully');
 }, function(error) {
 	window.alert('Error: ' + error);
 })
+```
+
+### Querying current Intent
+
+Use `getIntent` to get the Intent that was used to launch the current instance of the Cordova activity.
+
+```javascript
+window.plugins.Shortcuts.getIntent(function(intent) {
+	window.alert(JSON.stringify(intent));
+})
+```
+
+### Subscribe to new Intents
+
+Use `onNewIntent` to register a callback to be executed every time a new Intent is sent to your Cordova activity. Note that in some conditions this callback may not be executed. 
+
+For more information see the documentation for [Activity.onNewIntent(Intent)](https://developer.android.com/reference/android/app/Activity.html#onNewIntent(android.content.Intent))
+
+```javascript
+window.plugins.Shortcuts.onNewIntent(function(intent) {
+	window.alert(JSON.stringify(intent));
+})
+```
+
+Call with an empty callback to de-register the existing callback.
+
+```javascript
+window.plugins.Shortcuts.onNewIntent(); // De-register existing callback
 ```

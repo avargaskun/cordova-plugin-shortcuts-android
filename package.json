@@ -1,7 +1,7 @@
 {
     "name": "cordova-plugin-shortcuts-android",
     "version": "0.0.1",
-    "description": "Cordova plugin to create dynamic and pinned shortcuts on Android",
+    "description": "Cordova plugin for Android to create app shortcuts and handle intents.",
     "main": "index.js",
     "repository": {
       "type": "git",
@@ -15,6 +15,9 @@
     "homepage": "https://github.com/avargaskun/cordova-plugin-shortcuts-android#readme",
     "keywords": [
       "ecosystem:cordova",
-      "cordova-android"
+      "cordova-android",
+      "shortcut",
+      "intent",
+      "android"
     ]
   }

@@ -31,6 +31,26 @@ Shortcuts.prototype.setDynamic = function (shortcuts, successCallback, errorCall
   );
 };
 
+Shortcuts.prototype.getIntent = function (successCallback, errorCallback) {
+  cordova.exec(
+    successCallback,
+    errorCallback,
+    'ShortcutsPlugin',
+    'getIntent',
+    []
+  )
+}
+
+Shortcuts.prototype.onNewIntent = function (callback, errorCallback) {
+  cordova.exec(
+    callback,
+    errorCallback,
+    'ShortcutsPlugin',
+    'onNewIntent',
+    [typeof (callback) !== 'function']
+  )
+}
+
 if (!window.plugins) {
   window.plugins = {};
 }
