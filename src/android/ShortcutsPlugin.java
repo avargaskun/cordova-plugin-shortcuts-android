@@ -17,14 +17,18 @@ import android.util.Log;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
-import android.content.Intent;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
+import android.support.v4.content.pm.ShortcutInfoCompat;
+import android.support.v4.content.pm.ShortcutManagerCompat;
+import android.support.v4.graphics.drawable.IconCompat;
 
 public class ShortcutsPlugin extends CordovaPlugin {
 
@@ -32,6 +36,7 @@ public class ShortcutsPlugin extends CordovaPlugin {
     private static final String ACTION_SUPPORTS_DYNAMIC = "supportsDynamic";
     private static final String ACTION_SUPPORTS_PINNED = "supportsPinned";
     private static final String ACTION_SET_DYNAMIC = "setDynamic";
+    private static final String ACTION_ADD_PINNED = "addPinned";
     private static final String ACTION_GET_INTENT = "getIntent";
     private static final String ACTION_ON_NEW_INTENT = "onNewIntent";
 
@@ -49,13 +54,21 @@ public class ShortcutsPlugin extends CordovaPlugin {
                     return true;
                 }
                 else if (action.equals(ACTION_SUPPORTS_PINNED)) {
-                    boolean supported = Build.VERSION.SDK_INT >= 26;
+                    boolean supported = this.supportsPinned();
                     callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, supported));
                     return true;
                 } 
                 else if (action.equals(ACTION_SET_DYNAMIC)) {
                     setDynamicShortcuts(args);
+                    callbackContext.success();
                     return true;
+                } else if (action.equals(ACTION_ADD_PINNED)) {
+                    boolean success = addPinnedShortcut(args);
+                    if (success) {
+                        callbackContext.success();
+                    } else {
+                        callbackContext.error("Pinned shortcuts are not supported by the default launcher.");
+                    }
                 } else if (action.equals(ACTION_GET_INTENT)) {
                     getIntent(callbackContext);
                     return true;
@@ -86,6 +99,11 @@ public class ShortcutsPlugin extends CordovaPlugin {
         } catch (Exception e) {
             Log.e(TAG, "Exception handling onNewIntent: " + e.getMessage());            
         }
+    }
+
+    private boolean supportsPinned() {
+        Context context = this.cordova.getActivity().getApplicationContext();
+        return ShortcutManagerCompat.isRequestPinShortcutSupported(context);
     }
 
     private void subscribeOnNewIntent(
@@ -304,6 +322,72 @@ public class ShortcutsPlugin extends CordovaPlugin {
             shortcutManager.setDynamicShortcuts(shortcuts);
 
             Log.i(TAG, String.format("Saved % dynamic shortcuts.", count));
+    }
+
+    private ShortcutInfoCompat buildPinnedShortcut(
+        JSONObject jsonShortcut
+    ) throws PackageManager.NameNotFoundException, JSONException {
+        if (jsonShortcut == null) {
+            throw new InvalidParameterException("Parameters must include a valid shorcut.");
+        }
+
+        Context context = this.cordova.getActivity().getApplicationContext();
+        String shortcutId = jsonShortcut.optString("id");
+        if (shortcutId.length() == 0) {
+            throw new InvalidParameterException("A value for 'id' is required");
+        }
+
+        ShortcutInfoCompat.Builder builder = new ShortcutInfoCompat.Builder(context, shortcutId);
+    
+        String shortLabel = jsonShortcut.optString("shortLabel");
+        String longLabel = jsonShortcut.optString("longLabel");
+        if (shortLabel.length() == 0 && longLabel.length() == 0) {
+            throw new InvalidParameterException("A value for either 'shortLabel' or 'longLabel' is required");
+        }
+
+        if (shortLabel.length() == 0) {
+            shortLabel = longLabel;
+        }
+
+        if (longLabel.length() == 0) {
+            longLabel = shortLabel;
+        }
+
+        IconCompat icon;
+        String iconBitmap = jsonShortcut.optString("iconBitmap");
+
+        if (iconBitmap.length() > 0) {
+            icon = IconCompat.createWithBitmap(decodeBase64Bitmap(iconBitmap));
+        }
+        else {
+            String activityPackage = this.cordova.getActivity().getPackageName();
+            PackageManager pm = context.getPackageManager();
+            ApplicationInfo applicationInfo = pm.getApplicationInfo(activityPackage, PackageManager.GET_META_DATA);
+            icon = IconCompat.createWithResource(context, applicationInfo.icon);
+        }
+
+        JSONObject jsonIntent = jsonShortcut.optJSONObject("intent");
+        if (jsonIntent == null) {
+            jsonIntent = new JSONObject();
+        }
+
+        Intent intent = parseIntent(jsonIntent);
+
+        return builder
+            .setActivity(intent.getComponent())
+            .setShortLabel(shortLabel)
+            .setLongLabel(longLabel)
+            .setIcon(icon)
+            .setIntent(intent)
+            .build();
+    }
+
+    private boolean addPinnedShortcut(
+        JSONArray args
+    ) throws PackageManager.NameNotFoundException, JSONException {
+        ShortcutInfoCompat shortcut = buildPinnedShortcut(args.optJSONObject(0));
+        Context context = this.cordova.getActivity().getApplicationContext();
+        return ShortcutManagerCompat.requestPinShortcut(context, shortcut, null);
     }
 
     private static Bitmap decodeBase64Bitmap(

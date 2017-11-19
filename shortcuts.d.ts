@@ -21,6 +21,7 @@ interface Shortcuts {
   supportsDynamic(onSuccess?: (supported: boolean) => void, onError?: (error: any) => void);
   supportsPinned(onSuccess?: (supported: boolean) => void, onError?: (error: any) => void);
   setDynamic(shortcuts: Shortcut[], onSuccess?: () => void, onError?: (error: any) => void);
+  addPinned(shortcut: Shortcut, onSuccess?: () => void, onError?: (error: any) => void);
   getIntent(onSuccess?: (intent: Intent) => void, onError?: (error: any) => void);
   onNewIntent(callback?: (intent: Intent) => void, onError?: (error: any) => void);
 }

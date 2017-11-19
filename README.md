@@ -103,6 +103,37 @@ window.plugins.Shortcuts.setDynamic([shortcut], function() {
 })
 ```
 
+### Adding a Pinned Shortcut to the launcher
+
+Use `addPinned` to add a new Pinned Shortcut to the launcher.
+
+```javascript
+var shortcut = {
+	id: 'my_shortcut_1',
+	shortLabel: 'Short description',
+	longLabel: 'Longer string describing the shortcut',
+	iconBitmap: '<Bitmap for the shortcut icon, base64 encoded>', // Defaults to the main application icon
+	intent: {
+		action: 'android.intent.action.RUN',
+		categories: [
+			'android.intent.category.TEST', // Built-in Android category
+			'MY_CATEGORY' // Custom categories are also supported
+		],
+		flags: 67108864, // FLAG_ACTIVITY_CLEAR_TOP
+		data: 'myapp://path/to/launch?param=value', // Must be a well-formed URI
+		extras: {
+			'android.intent.extra.SUBJECT': 'Hello world!', // Built-in Android extra (string)
+			'MY_BOOLEAN': true, // Custom extras are also supported (boolean, number and string only)
+		}
+	}
+}
+window.plugins.Shortcuts.addPinned(shortcut, function() {
+	window.alert('Shortcut pinned successfully');
+}, function(error) {
+	window.alert('Error: ' + error);
+})
+```
+
 ### Querying current Intent
 
 Use `getIntent` to get the Intent that was used to launch the current instance of the Cordova activity.

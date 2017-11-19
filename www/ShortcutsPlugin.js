@@ -31,6 +31,16 @@ Shortcuts.prototype.setDynamic = function (shortcuts, successCallback, errorCall
   );
 };
 
+Shortcuts.prototype.addPinned = function (shortcut, successCallback, errorCallback) {
+  cordova.exec(
+    successCallback,
+    errorCallback,
+    'ShortcutsPlugin',
+    'addPinned',
+    [shortcut]
+  );
+};
+
 Shortcuts.prototype.getIntent = function (successCallback, errorCallback) {
   cordova.exec(
     successCallback,

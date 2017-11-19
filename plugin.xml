@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-shortcuts-android"
-    version="0.0.1">
+    version="0.1.0">
 
     <name>Android Shortcuts</name>
     
@@ -22,6 +22,8 @@
     
     <!-- android -->
     <platform name="android">
+        <framework src="com.android.support:support-compat:27.0.0" />
+
         <config-file target="AndroidManifest.xml" parent="/*">
             <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
             <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
