@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-shortcuts-android",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Cordova plugin for Android to create app shortcuts and handle intents.",
   "main": "index.js",
   "repository": {
