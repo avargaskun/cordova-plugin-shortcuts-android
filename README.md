@@ -82,6 +82,7 @@ var shortcut = {
 	shortLabel: 'Short description',
 	longLabel: 'Longer string describing the shortcut',
 	iconBitmap: '<Bitmap for the shortcut icon, base64 encoded>',
+	iconFromResource: "ic_playlist_play_red", //filename w/o extension of an icon that resides on res/drawable-* (hdpi,mdpi..)
 	intent: {
 		action: 'android.intent.action.RUN',
 		categories: [
@@ -113,6 +114,7 @@ var shortcut = {
 	shortLabel: 'Short description',
 	longLabel: 'Longer string describing the shortcut',
 	iconBitmap: '<Bitmap for the shortcut icon, base64 encoded>', // Defaults to the main application icon
+	iconFromResource: "ic_playlist_play_red", //filename w/o extension of an icon that resides on res/drawable-* (hdpi,mdpi..)
 	intent: {
 		action: 'android.intent.action.RUN',
 		categories: [
