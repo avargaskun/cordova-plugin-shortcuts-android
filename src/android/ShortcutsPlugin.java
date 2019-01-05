@@ -291,7 +291,7 @@ public class ShortcutsPlugin extends CordovaPlugin {
                 icon = Icon.createWithBitmap(decodeBase64Bitmap(iconBitmap));
             } 
         
-            if (iconFromResource.length() > 0){
+            else if (iconFromResource.length() > 0){
                 Resources activityRes = this.cordova.getActivity().getResources();
                 int iconId = activityRes.getIdentifier(iconFromResource, "drawable", activityPackage);
                 icon = Icon.createWithResource(context, iconId);
