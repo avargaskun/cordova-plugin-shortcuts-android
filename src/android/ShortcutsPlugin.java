@@ -290,7 +290,11 @@ public class ShortcutsPlugin extends CordovaPlugin {
         
         
             if(iconAdaptiveBitmap.length() > 0 && Build.VERSION.SDK_INT >= 26) {
-                icon = IconCompat.createWithAdaptiveBitmap(decodeBase64Bitmap(iconAdaptiveBitmap));
+                ColorDrawable color = new ColorDrawable(0xfff5f5f5);
+                Drawable drawable = new BitmapDrawable(context.getResources(), decodeBase64Bitmap(iconBitmap));
+                AdaptiveIconDrawable adaptiveIconDrawable = new AdaptiveIconDrawable(color, drawable);
+                Bitmap newBitmap = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), adaptiveIconDrawable, null)).getBitmap();
+                icon = IconCompat.createWithAdaptiveBitmap(newBitmap);
             }
             else if (iconBitmap.length() > 0) {
                 icon = IconCompat.createWithBitmap(decodeBase64Bitmap(iconBitmap));
