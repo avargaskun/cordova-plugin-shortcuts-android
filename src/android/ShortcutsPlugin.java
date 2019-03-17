@@ -289,7 +289,7 @@ public class ShortcutsPlugin extends CordovaPlugin {
             String activityPackage = this.cordova.getActivity().getPackageName();
         
         
-            if(iconAdaptiveBitmap.length() && Build.VERSION.SDK_INT >= 26) {
+            if(iconAdaptiveBitmap.length() > 0 && Build.VERSION.SDK_INT >= 26) {
                 icon = Icon.createWithAdaptiveBitmap(decodeBase64Bitmap(iconBitmap));
             }
             else if (iconBitmap.length() > 0) {
