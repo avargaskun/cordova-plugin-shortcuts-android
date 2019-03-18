@@ -285,13 +285,14 @@ public class ShortcutsPlugin extends CordovaPlugin {
             String iconBitmap = jsonShortcut.optString("iconBitmap");
             String iconAdaptiveBitmap = jsonShortcut.optString("iconAdaptiveBitmap");
             String iconFromResource = jsonShortcut.optString("iconFromResource");
+            String iconAdaptiveFromResource = jsonShortcut.optString("iconAdaptiveFromResource");
 
             String activityPackage = this.cordova.getActivity().getPackageName();
         
         
             if(iconAdaptiveBitmap.length() > 0 && Build.VERSION.SDK_INT >= 26) {
                 ColorDrawable color = new ColorDrawable(0xfff5f5f5);
-                Drawable drawable = new BitmapDrawable(context.getResources(), decodeBase64Bitmap(iconAdaptiveBitmap));
+                Drawable drawable = new BitmapDrawable(context.getResources(), decodeBase64Bitmap(iconBitmap));
                 AdaptiveIconDrawable adaptiveIconDrawable = new AdaptiveIconDrawable(color, drawable);
                 Bitmap newBitmap = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), adaptiveIconDrawable, null)).getBitmap();
                 icon = IconCompat.createWithAdaptiveBitmap(newBitmap);
@@ -299,7 +300,13 @@ public class ShortcutsPlugin extends CordovaPlugin {
             else if (iconBitmap.length() > 0) {
                 icon = IconCompat.createWithBitmap(decodeBase64Bitmap(iconBitmap));
             } 
-        
+            else if (iconAdaptiveFromResource.length() > 0) {
+                ColorDrawable color = new ColorDrawable(0xfff5f5f5);
+                Drawable drawable = context.getResources().getDrawable(iconFromResource, context.getTheme());
+                AdaptiveIconDrawable adaptiveIconDrawable = new AdaptiveIconDrawable(color, drawable);
+                Bitmap newBitmap = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), adaptiveIconDrawable, null)).getBitmap();
+                icon = IconCompat.createWithAdaptiveBitmap(newBitmap);
+            }
             else if (iconFromResource.length() > 0){
                 Resources activityRes = this.cordova.getActivity().getResources();
                 int iconId = activityRes.getIdentifier(iconFromResource, "drawable", activityPackage);
