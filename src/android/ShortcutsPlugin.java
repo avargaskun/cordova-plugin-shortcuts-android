@@ -291,7 +291,8 @@ public class ShortcutsPlugin extends CordovaPlugin {
         
         
             if(iconAdaptiveBitmap.length() > 0 && Build.VERSION.SDK_INT >= 26) {
-                Drawable backgroundDrawable = Util.getTintedVectorDrawable(context, R.drawable.ic_app_shortcut_background, new ColorDrawable(0xfff5f5f5));
+                Drawable backgroundDrawable = context.getResources().getDrawable(R.drawable.ic_app_shortcut_background, context.getTheme());
+                backgroundDrawable.setColorFilter(new ColorDrawable(0xfff5f5f5), PorterDuff.Mode.SRC_ATOP);
                 Drawable drawable = new BitmapDrawable(context.getResources(), decodeBase64Bitmap(iconBitmap));
                 AdaptiveIconDrawable adaptiveIconDrawable = new AdaptiveIconDrawable(backgroundDrawable, drawable);
                 Bitmap newBitmap = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), adaptiveIconDrawable, null)).getBitmap();
@@ -301,7 +302,8 @@ public class ShortcutsPlugin extends CordovaPlugin {
                 icon = IconCompat.createWithBitmap(decodeBase64Bitmap(iconBitmap));
             } 
             else if (iconAdaptiveFromResource.length() > 0 && Build.VERSION.SDK_INT >= 26) {
-                Drawable backgroundDrawable = Util.getTintedVectorDrawable(context, R.drawable.ic_app_shortcut_background, new ColorDrawable(0xfff5f5f5));
+                Drawable backgroundDrawable = context.getResources().getDrawable(R.drawable.ic_app_shortcut_background, context.getTheme());
+                backgroundDrawable.setColorFilter(new ColorDrawable(0xfff5f5f5), PorterDuff.Mode.SRC_ATOP);
                 Drawable drawable = context.getResources().getDrawable(iconFromResource, context.getTheme());
                 AdaptiveIconDrawable adaptiveIconDrawable = new AdaptiveIconDrawable(backgroundDrawable, drawable);
                 Bitmap newBitmap = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), adaptiveIconDrawable, null)).getBitmap();
