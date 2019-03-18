@@ -282,6 +282,7 @@ public class ShortcutsPlugin extends CordovaPlugin {
             }
 
             IconCompat icon;
+            String iconAdaptiveBackground = jsonShortcut.optString("iconAdaptiveBackground");
             String iconBitmap = jsonShortcut.optString("iconBitmap");
             String iconAdaptiveBitmap = jsonShortcut.optString("iconAdaptiveBitmap");
             String iconFromResource = jsonShortcut.optString("iconFromResource");
@@ -291,9 +292,8 @@ public class ShortcutsPlugin extends CordovaPlugin {
         
         
             if(iconAdaptiveBitmap.length() > 0 && Build.VERSION.SDK_INT >= 26) {
-                Drawable backgroundDrawable = context.getResources().getDrawable(R.drawable.ic_app_shortcut_background, context.getTheme());
-                backgroundDrawable.setColorFilter(new ColorDrawable(0xfff5f5f5), PorterDuff.Mode.SRC_ATOP);
                 Drawable drawable = new BitmapDrawable(context.getResources(), decodeBase64Bitmap(iconBitmap));
+                Drawable backgroundDrawable = new BitmapDrawable(context.getResources(), decodeBase64Bitmap(iconAdaptiveBackground));
                 AdaptiveIconDrawable adaptiveIconDrawable = new AdaptiveIconDrawable(backgroundDrawable, drawable);
                 Bitmap newBitmap = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), adaptiveIconDrawable, null)).getBitmap();
                 icon = IconCompat.createWithAdaptiveBitmap(newBitmap);
@@ -302,9 +302,8 @@ public class ShortcutsPlugin extends CordovaPlugin {
                 icon = IconCompat.createWithBitmap(decodeBase64Bitmap(iconBitmap));
             } 
             else if (iconAdaptiveFromResource.length() > 0 && Build.VERSION.SDK_INT >= 26) {
-                Drawable backgroundDrawable = context.getResources().getDrawable(R.drawable.ic_app_shortcut_background, context.getTheme());
-                backgroundDrawable.setColorFilter(new ColorDrawable(0xfff5f5f5), PorterDuff.Mode.SRC_ATOP);
                 Drawable drawable = context.getResources().getDrawable(iconFromResource, context.getTheme());
+                Drawable backgroundDrawable = new BitmapDrawable(context.getResources(), decodeBase64Bitmap(iconAdaptiveBackground));
                 AdaptiveIconDrawable adaptiveIconDrawable = new AdaptiveIconDrawable(backgroundDrawable, drawable);
                 Bitmap newBitmap = ((BitmapDrawable) ResourcesCompat.getDrawable(context.getResources(), adaptiveIconDrawable, null)).getBitmap();
                 icon = IconCompat.createWithAdaptiveBitmap(newBitmap);
