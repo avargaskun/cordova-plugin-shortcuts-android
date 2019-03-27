@@ -379,17 +379,17 @@ public class ShortcutsPlugin extends CordovaPlugin {
             longLabel = shortLabel;
         }
 
-        Icon icon;
+        IconCompat icon;
         String iconBitmap = jsonShortcut.optString("iconBitmap");
 
         if (iconBitmap.length() > 0) {
-            icon = Icon.createWithBitmap(decodeBase64Bitmap(iconBitmap));
+            icon = IconCompat.createWithBitmap(decodeBase64Bitmap(iconBitmap));
         }
         else {
             String activityPackage = this.cordova.getActivity().getPackageName();
             PackageManager pm = context.getPackageManager();
             ApplicationInfo applicationInfo = pm.getApplicationInfo(activityPackage, PackageManager.GET_META_DATA);
-            icon = Icon.createWithResource(context, applicationInfo.icon);
+            icon = IconCompat.createWithResource(context, applicationInfo.icon);
         }
 
         JSONObject jsonIntent = jsonShortcut.optJSONObject("intent");
