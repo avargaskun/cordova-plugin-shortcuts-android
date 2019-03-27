@@ -36,8 +36,7 @@ import android.content.res.Resources;
 import android.support.v4.content.pm.ShortcutInfoCompat;
 import android.support.v4.content.pm.ShortcutManagerCompat;
 import android.support.v4.graphics.drawable.IconCompat;
-
-import androidx.core.content.res.ResourcesCompat;
+import android.support.v4.content.res.ResourcesCompat;
 
 public class ShortcutsPlugin extends CordovaPlugin {
 
