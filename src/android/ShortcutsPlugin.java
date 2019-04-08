@@ -16,7 +16,13 @@ import android.util.Base64;
 import android.util.Log;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.Icon;
+import android.graphics.drawable.ColorDrawable;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +36,7 @@ import android.content.res.Resources;
 import android.support.v4.content.pm.ShortcutInfoCompat;
 import android.support.v4.content.pm.ShortcutManagerCompat;
 import android.support.v4.graphics.drawable.IconCompat;
+import android.support.v4.content.res.ResourcesCompat;
 
 public class ShortcutsPlugin extends CordovaPlugin {
 
@@ -283,15 +290,24 @@ public class ShortcutsPlugin extends CordovaPlugin {
 
             Icon icon;
             String iconBitmap = jsonShortcut.optString("iconBitmap");
+            String iconAdaptiveBitmap = jsonShortcut.optString("iconAdaptiveBitmap");
             String iconFromResource = jsonShortcut.optString("iconFromResource");
 
             String activityPackage = this.cordova.getActivity().getPackageName();
         
-            if (iconBitmap.length() > 0) {
-                icon = Icon.createWithBitmap(decodeBase64Bitmap(iconBitmap));
-            } 
         
-            if (iconFromResource.length() > 0){
+            if(iconAdaptiveBitmap.length() > 0 && Build.VERSION.SDK_INT >= 26) {
+                //Drawable drawable = new BitmapDrawable(context.getResources(), decodeBase64Bitmap(iconBitmap));
+                //Drawable transparentDrawable = new ColorDrawable(Color.TRANSPARENT);
+                //AdaptiveIconDrawable adaptiveIconDrawable = new AdaptiveIconDrawable(transparentDrawable, drawable);
+                //Bitmap newBitmap = ((BitmapDrawable) adaptiveIconDrawable).getBitmap();
+                //icon = Icon.createWithAdaptiveBitmap(newBitmap);
+                icon = Icon.createWithAdaptiveBitmap(decodeBase64Bitmap(iconBitmap));
+            }
+            else if (iconBitmap.length() > 0) {
+                icon = Icon.createWithBitmap(decodeBase64Bitmap(iconBitmap));
+            }
+            else if (iconFromResource.length() > 0){
                 Resources activityRes = this.cordova.getActivity().getResources();
                 int iconId = activityRes.getIdentifier(iconFromResource, "drawable", activityPackage);
                 icon = Icon.createWithResource(context, iconId);
