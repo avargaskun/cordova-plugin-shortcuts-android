@@ -5,7 +5,7 @@ interface Shortcut {
   iconPath?: string;
   iconFromResource?: string;
   iconBitmap?: string;
-  iconAdaptiveBitmap?: string;
+  iconAdaptiveBitmap?: boolean;
   intent?: Intent;
 }
 
