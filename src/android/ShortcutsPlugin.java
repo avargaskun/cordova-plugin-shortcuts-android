@@ -40,6 +40,8 @@ public class ShortcutsPlugin extends CordovaPlugin {
     private static final String ACTION_ADD_PINNED = "addPinned";
     private static final String ACTION_GET_INTENT = "getIntent";
     private static final String ACTION_ON_NEW_INTENT = "onNewIntent";
+    private static final String EXTRA_SHORTCUT = "shortcut";
+    private static final String EXTRA_SHORTCUT_NAMESPACE = "shortcut.";
 
     private CallbackContext onNewIntentCallbackContext = null;
     private Intent launchIntent;
@@ -137,6 +139,28 @@ public class ShortcutsPlugin extends CordovaPlugin {
         launchIntent = null; // consume so it is not re-processed
         PluginResult result = new PluginResult(PluginResult.Status.OK, buildIntent(intent));
         callbackContext.sendPluginResult(result);
+        // Consume the shortcut extras so a later getIntent() does not report the same
+        // shortcut again. Strip both the intent we just reported and the activity's
+        // current intent: they are normally the same object, but another plugin may
+        // have swapped the activity's intent via setIntent(), and the one-shot
+        // contract should not depend on that identity holding.
+        consumeShortcutExtras(intent);
+        consumeShortcutExtras(this.cordova.getActivity().getIntent());
+    }
+
+    private void consumeShortcutExtras(Intent intent) {
+        if (intent == null) {
+            return;
+        }
+        Bundle data = intent.getExtras();
+        if (data == null) {
+            return;
+        }
+        for (String key : data.keySet()) {
+            if (EXTRA_SHORTCUT.equals(key) || key.startsWith(EXTRA_SHORTCUT_NAMESPACE)) {
+                intent.removeExtra(key);
+            }
+        }
     }
 
     private JSONObject buildIntent(
