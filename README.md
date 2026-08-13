@@ -215,6 +215,7 @@ export class ShortCutsService{
 
 ## CHANGES
 
+* v0.1.4 Support adaptive bitmap icons on Android 8.0+ and fix custom bitmap icons being replaced by the application icon. Icon selection now uses `iconBitmap`, then `iconFromResource`, and finally the application icon; the same behavior applies to dynamic and pinned shortcuts.
 * v0.1.3 `getIntent` reports a shortcut only once — the reserved `shortcut` and `shortcut.*` extras are consumed after the first call. Preserve the launch intent on cold start so `getIntent` keeps action and data when another plugin replaces the activity Intent. Add resource templates for static shortcuts
 * v0.1.2 BREAKING: Do not append package name to keys under `Intent.Extras` dictionary
 * v0.1.1 Support loading icons from drawable resources
