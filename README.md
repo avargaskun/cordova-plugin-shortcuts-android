@@ -42,6 +42,24 @@ The work that went into creating this plug-in was inspired by the existing plugi
 
 ## How to use it
 
+### Setting Static Shortcuts
+
+1. Copy `resources` to project's root
+
+```xml
+<platform name="android">
+    <resource-file src="resources/android/shortcuts/xml/shortcuts.xml" target="app/src/main/res/xml/shortcuts.xml" />
+    <resource-file src="resources/android/shortcuts/values/shortcuts.xml" target="app/src/main/res/values/shortcuts.xml" />
+    <resource-file src="resources/android/shortcuts/drawable/static_shortcut.xml" target="app/src/main/res/drawable/static_shortcut.xml" />
+    <edit-config file="app/src/main/AndroidManifest.xml" mode="add" target="/manifest/application/activity" xmlns:android="http://schemas.android.com/apk/res/android">
+        <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+    </edit-config>
+</platform>
+
+```
+
+2. `resources/android/shortcuts/xml/shortcuts.xml` replace `{{BUNDLE_ID}}` with your application id
+
 ### Checking if Dynamic Shortcuts are supported
 
 Dynamic shortcuts require SDK 25 or later. Use `supportsDynamic` to check whether the current device meets those requirements.
@@ -148,6 +166,8 @@ window.plugins.Shortcuts.getIntent(function(intent) {
 })
 ```
 
+A shortcut is reported only once. The keys `shortcut` and anything under the `shortcut.` namespace (for example `shortcut.action`) are reserved by the plugin: they are removed from the Intent after the first `getIntent` call, so a later call in the same session — after a resume, or a second read on the JS side — will not report the same shortcut again. Every other extra is left untouched. Use `onNewIntent` to be notified when a shortcut is activated while your app is already running.
+
 ### Subscribe to new Intents
 
 Use `onNewIntent` to register a callback to be executed every time a new Intent is sent to your Cordova activity. Note that in some conditions this callback may not be executed. 
@@ -166,8 +186,36 @@ Call with an empty callback to de-register the existing callback.
 window.plugins.Shortcuts.onNewIntent(); // De-register existing callback
 ```
 
+### How to use with Ionic
+
+An Ionic Native wrapper is available in [`@awesome-cordova-plugins`](https://github.com/danielsogl/awesome-cordova-plugins).
+
+```bash
+
+npm i @awesome-cordova-plugins/shortcuts-android
+
+```
+
+```ts
+import { inject, Injectable } from '@angular/core';
+import { ShortcutsAndroid, Intent } from '@awesome-cordova-plugins/shortcuts-android/ngx';
+import { filter, from, merge } from 'rxjs';
+
+@Injectable()
+export class ShortCutsService{
+  private shortcutsAndroid = inject(ShortcutsAndroid);
+  onNewIntent() {
+    return merge(from(this.shortcutsAndroid.getIntent()), this.shortcutsAndroid.onNewIntent()).pipe(
+      filter((intent: Intent) => !!intent?.extras?.shortcut)
+    );
+  }
+}
+
+```
+
 ## CHANGES
 
+* v0.1.3 `getIntent` reports a shortcut only once — the reserved `shortcut` and `shortcut.*` extras are consumed after the first call. Preserve the launch intent on cold start so `getIntent` keeps action and data when another plugin replaces the activity Intent. Add resource templates for static shortcuts
 * v0.1.2 BREAKING: Do not append package name to keys under `Intent.Extras` dictionary
 * v0.1.1 Support loading icons from drawable resources
 * v0.1.0 Original version

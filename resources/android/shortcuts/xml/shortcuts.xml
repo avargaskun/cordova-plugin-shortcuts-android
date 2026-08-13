@@ -1,0 +1,16 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+            android:shortcutId="static_shortcut"
+            android:enabled="true"
+            android:icon="@drawable/static_shortcut"
+            android:shortcutShortLabel="@string/static_shortcut"
+            android:shortcutLongLabel="@string/static_shortcut"
+            android:shortcutDisabledMessage="@string/static_shortcut">
+        <intent
+            android:action="android.intent.action.RUN"
+            android:targetPackage="{{BUNDLE_ID}}"
+            android:targetClass="{{BUNDLE_ID}}.MainActivity" >
+            <extra android:name="shortcut" android:value="static_shortcut"/>
+        </intent>
+    </shortcut>
+</shortcuts>
