@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 
 import android.content.Context;
 import android.content.pm.ShortcutInfo;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 
 public final class TestFixtures {
@@ -42,6 +43,22 @@ public final class TestFixtures {
         } catch (Exception e) {
             throw new AssertionError("Could not read ShortcutInfo.getIcon() reflectively", e);
         }
+    }
+
+    /**
+     * {@code Icon.getType()} is only a public platform method from SDK 28, so low-SDK tests cannot
+     * call it. Robolectric's ShadowIcon (minSdk 23) exposes the same state at every SDK we run.
+     */
+    public static int iconType(Icon icon) {
+        return shadowOf(icon).getType();
+    }
+
+    public static int iconResId(Icon icon) {
+        return shadowOf(icon).getResId();
+    }
+
+    public static Bitmap iconBitmap(Icon icon) {
+        return shadowOf(icon).getBitmap();
     }
 
     public static int testDrawableId(Context context) {
