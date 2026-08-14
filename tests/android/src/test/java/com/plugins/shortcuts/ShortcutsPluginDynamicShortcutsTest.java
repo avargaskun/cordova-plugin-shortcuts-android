@@ -13,7 +13,6 @@ import android.graphics.drawable.Icon;
 import android.os.Bundle;
 
 import org.apache.cordova.PluginResult;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -373,13 +372,13 @@ public class ShortcutsPluginDynamicShortcutsTest {
     }
 
     /**
-     * Characterization of the {@code SDK_INT >= 26} guard: below 26 the adaptive request is
-     * silently downgraded to the raw, unmasked source bitmap. After the guard is removed this
-     * becomes a bitmap-type Icon of the legacy-masked size (32 = 2/3 x 48).
+     * Below API 26 there is no adaptive Icon type, so IconCompat.toIcon renders the adaptive
+     * bitmap through its legacy safe-zone masking: a bitmap-type Icon sized 2/3 of the source
+     * (32 = 2/3 x 48), not the raw 48x48 the pre-fix SDK guard produced.
      */
     @Test
     @Config(sdk = 25)
-    public void icon_adaptiveBitmapBelowSdk26_isDowngradedToTheRawBitmap() {
+    public void icon_adaptiveBitmapBelowSdk26_isLegacyMasked() {
         PluginTestHarness harness = new PluginTestHarness();
 
         Icon icon = iconFor(harness,
@@ -388,7 +387,7 @@ public class ShortcutsPluginDynamicShortcutsTest {
 
         assertEquals(Icon.TYPE_BITMAP, TestFixtures.iconType(icon));
         assertNotEquals(Icon.TYPE_ADAPTIVE_BITMAP, TestFixtures.iconType(icon));
-        assertEquals(48, TestFixtures.iconBitmap(icon).getWidth());
+        assertEquals(32, TestFixtures.iconBitmap(icon).getWidth());
     }
 
     /** optBoolean only treats a real JSON true as true, so the string "false" is not adaptive. */
@@ -436,19 +435,7 @@ public class ShortcutsPluginDynamicShortcutsTest {
         assertEquals(harness.appIconResId, TestFixtures.iconResId(icon));
     }
 
-    // characterization twin — DELETE in the refactor phase when the fallback fix lands
     @Test
-    public void icon_fromMissingResource_currentlyBuildsAResourceIconWithId0() {
-        PluginTestHarness harness = new PluginTestHarness();
-
-        Icon icon = iconFor(harness, "\"iconFromResource\": \"does_not_exist\"");
-
-        assertEquals(Icon.TYPE_RESOURCE, TestFixtures.iconType(icon));
-        assertEquals(0, TestFixtures.iconResId(icon));
-    }
-
-    @Test
-    @Ignore("enabled by the icon-fallback fix")
     public void icon_fromMissingResource_fallsBackToTheApplicationIcon() {
         PluginTestHarness harness = new PluginTestHarness();
 

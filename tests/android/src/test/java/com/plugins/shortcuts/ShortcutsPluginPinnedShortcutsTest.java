@@ -18,7 +18,6 @@ import android.graphics.drawable.Icon;
 import android.os.Bundle;
 
 import org.apache.cordova.PluginResult;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -242,19 +241,7 @@ public class ShortcutsPluginPinnedShortcutsTest {
         assertEquals(harness.appIconResId, TestFixtures.iconResId(icon));
     }
 
-    // characterization twin — DELETE in the refactor phase when the fallback fix lands
     @Test
-    public void icon_fromMissingResource_currentlyFailsBecauseIconCompatRejectsResId0() {
-        PluginTestHarness harness = harnessWithPinSupport();
-
-        assertThrownError(harness.execute("addPinned",
-            "[{\"id\": \"one\", \"shortLabel\": \"One\", \"iconFromResource\": \"does_not_exist\"}]"),
-            "Drawable resource ID must not be 0");
-        assertTrue(harness.shortcutManager().getPinnedShortcuts().isEmpty());
-    }
-
-    @Test
-    @Ignore("enabled by the icon-fallback fix")
     public void icon_fromMissingResource_fallsBackToTheApplicationIcon() {
         PluginTestHarness harness = harnessWithPinSupport();
 
@@ -337,27 +324,11 @@ public class ShortcutsPluginPinnedShortcutsTest {
     }
 
     /**
-     * Characterization of the {@code SDK_INT >= 26} guard on the compat path: below 26 the adaptive
-     * request is downgraded to {@code createWithBitmap}, so the legacy broadcast carries the raw
-     * unmasked 48x48 source. IconCompat needs no such guard — removing it makes this 32x32.
+     * IconCompat does safe-zone cropping itself below API 26, so with no SDK guard the legacy
+     * broadcast carries the masked rendering (32 = 2/3 x 48), not the raw 48x48 source.
      */
-    // characterization twin — DELETE in the refactor phase when the adaptive guard is removed
     @Test
     @Config(sdk = 25)
-    public void legacyPin_adaptiveBitmapBelowSdk26_currentlyBroadcastsTheRawBitmap() {
-        PluginTestHarness harness = new PluginTestHarness();
-
-        Bitmap bitmap = legacyBroadcastIconFor(harness,
-            "\"iconBitmap\": \"" + TestFixtures.ADAPTIVE_48_PNG_BASE64 + "\","
-            + "\"iconAdaptiveBitmap\": true");
-
-        assertEquals(48, bitmap.getWidth());
-        assertEquals(48, bitmap.getHeight());
-    }
-
-    @Test
-    @Config(sdk = 25)
-    @Ignore("enabled by the adaptive-icon guard removal")
     public void legacyPin_adaptiveBitmapBelowSdk26_broadcastsTheLegacyMaskedBitmap() {
         PluginTestHarness harness = new PluginTestHarness();
 
