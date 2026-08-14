@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-shortcuts-android"
-    version="0.1.4">
+    version="0.2.0">
 
     <name>Android Shortcuts</name>
     
