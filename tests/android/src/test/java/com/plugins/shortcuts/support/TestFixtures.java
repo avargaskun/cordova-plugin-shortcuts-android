@@ -27,6 +27,9 @@ public final class TestFixtures {
 
     public static final String TEST_DRAWABLE_NAME = "test_icon";
 
+    /** A drawable distinct from {@link #TEST_DRAWABLE_NAME}, seeded as the application icon. */
+    public static final String APP_ICON_DRAWABLE_NAME = "app_icon";
+
     private TestFixtures() {
     }
 
@@ -62,10 +65,18 @@ public final class TestFixtures {
     }
 
     public static int testDrawableId(Context context) {
+        return drawableId(context, TEST_DRAWABLE_NAME);
+    }
+
+    public static int appIconDrawableId(Context context) {
+        return drawableId(context, APP_ICON_DRAWABLE_NAME);
+    }
+
+    private static int drawableId(Context context, String name) {
         int id = context.getResources().getIdentifier(
-            TEST_DRAWABLE_NAME, "drawable", context.getPackageName());
+            name, "drawable", context.getPackageName());
         if (id == 0) {
-            throw new AssertionError("Test drawable '" + TEST_DRAWABLE_NAME
+            throw new AssertionError("Test drawable '" + name
                 + "' did not resolve for package " + context.getPackageName());
         }
         return id;
@@ -77,7 +88,7 @@ public final class TestFixtures {
      * needs a real resId seeded first. Returns the seeded resId.
      */
     public static int seedApplicationIcon(Context context) {
-        int resId = testDrawableId(context);
+        int resId = appIconDrawableId(context);
         shadowOf(context.getPackageManager())
             .getInternalMutablePackageInfo(context.getPackageName())
             .applicationInfo.icon = resId;
