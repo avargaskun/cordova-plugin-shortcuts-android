@@ -1,0 +1,6 @@
+node_modules/
+tests/android/.gradle/
+tests/android/build/
+local.properties
+*.tgz
+.DS_Store

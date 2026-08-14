@@ -1,0 +1,36 @@
+plugins {
+    id 'com.android.library' version '8.7.3'
+}
+
+def frameworkSrc = file('../../node_modules/cordova-android/framework/src')
+if (!frameworkSrc.directory) {
+    throw new GradleException("cordova-android framework sources not found at ${frameworkSrc}. Run 'npm install' at the repo root first.")
+}
+
+android {
+    namespace 'com.plugins.shortcuts'
+    compileSdk 35
+    defaultConfig { minSdk 21 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+    sourceSets {
+        main.java.srcDirs += '../../src/android'
+        main.java.srcDirs += frameworkSrc.absolutePath
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.core:core-splashscreen:1.0.1'
+    implementation 'androidx.webkit:webkit:1.12.1'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.14.1'
+}

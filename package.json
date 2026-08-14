@@ -19,5 +19,8 @@
     "shortcut",
     "intent",
     "android"
-  ]
+  ],
+  "devDependencies": {
+    "cordova-android": "^14.0.0"
+  }
 }
