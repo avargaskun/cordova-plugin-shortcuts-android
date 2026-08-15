@@ -26,7 +26,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
-import android.content.res.Resources;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -148,7 +147,7 @@ public class ShortcutsPlugin extends CordovaPlugin {
         consumeShortcutExtras(this.cordova.getActivity().getIntent());
     }
 
-    private void consumeShortcutExtras(Intent intent) {
+    static void consumeShortcutExtras(Intent intent) {
         if (intent == null) {
             return;
         }
@@ -163,7 +162,7 @@ public class ShortcutsPlugin extends CordovaPlugin {
         }
     }
 
-    private JSONObject buildIntent(
+    static JSONObject buildIntent(
         Intent intent
     ) throws JSONException  {
         JSONObject jsonIntent = new JSONObject();
@@ -213,18 +212,16 @@ public class ShortcutsPlugin extends CordovaPlugin {
         return jsonIntent;
     }
 
-    private Intent parseIntent(
-        JSONObject jsonIntent
+    static Intent parseIntent(
+        JSONObject jsonIntent,
+        String defaultPackage,
+        String defaultClassName
     ) throws JSONException {
 
         Intent intent = new Intent();
-        
-        String activityClass = jsonIntent.optString(
-            "activityClass",
-            this.cordova.getActivity().getClass().getName());
-        String activityPackage = jsonIntent.optString(
-            "activityPackage",
-            this.cordova.getActivity().getPackageName());
+
+        String activityClass = jsonIntent.optString("activityClass", defaultClassName);
+        String activityPackage = jsonIntent.optString("activityPackage", defaultPackage);
         intent.setClassName(activityPackage, activityClass);
 
         String action = jsonIntent.optString("action", Intent.ACTION_VIEW);
@@ -285,6 +282,35 @@ public class ShortcutsPlugin extends CordovaPlugin {
         return intent;
     }
 
+    static IconCompat selectIcon(
+        Context context,
+        JSONObject jsonShortcut
+    ) throws PackageManager.NameNotFoundException {
+        String iconBitmap = jsonShortcut.optString("iconBitmap");
+        boolean adaptive = jsonShortcut.optBoolean("iconAdaptiveBitmap");
+        String iconFromResource = jsonShortcut.optString("iconFromResource");
+        String packageName = context.getPackageName();
+
+        if (iconBitmap.length() > 0) {
+            Bitmap bitmap = decodeBase64Bitmap(iconBitmap);
+            return adaptive
+                ? IconCompat.createWithAdaptiveBitmap(bitmap)
+                : IconCompat.createWithBitmap(bitmap);
+        }
+
+        if (iconFromResource.length() > 0) {
+            int iconId = context.getResources().getIdentifier(iconFromResource, "drawable", packageName);
+            if (iconId != 0) {
+                return IconCompat.createWithResource(context, iconId);
+            }
+            Log.w(TAG, "Drawable '" + iconFromResource + "' not found; falling back to application icon");
+        }
+
+        ApplicationInfo appInfo = context.getPackageManager()
+            .getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+        return IconCompat.createWithResource(context, appInfo.icon);
+    }
+
     private ShortcutInfo buildDynamicShortcut(
         JSONObject jsonShortcut) throws PackageManager.NameNotFoundException, JSONException {
             if (jsonShortcut == null) {
@@ -313,35 +339,17 @@ public class ShortcutsPlugin extends CordovaPlugin {
                 longLabel = shortLabel;
             }
 
-            Icon icon;
-            String iconBitmap = jsonShortcut.optString("iconBitmap");
-            boolean iconAdaptiveBitmap = jsonShortcut.optBoolean("iconAdaptiveBitmap");
-            String iconFromResource = jsonShortcut.optString("iconFromResource");
-
-            String activityPackage = this.cordova.getActivity().getPackageName();
-        
-        
-            if (iconBitmap.length() > 0) {
-                Bitmap bitmap = decodeBase64Bitmap(iconBitmap);
-                icon = iconAdaptiveBitmap && Build.VERSION.SDK_INT >= 26
-                    ? Icon.createWithAdaptiveBitmap(bitmap)
-                    : Icon.createWithBitmap(bitmap);
-            } else if (iconFromResource.length() > 0) {
-                Resources activityRes = this.cordova.getActivity().getResources();
-                int iconId = activityRes.getIdentifier(iconFromResource, "drawable", activityPackage);
-                icon = Icon.createWithResource(context, iconId);
-            } else {
-                PackageManager pm = context.getPackageManager();
-                ApplicationInfo applicationInfo = pm.getApplicationInfo(activityPackage, PackageManager.GET_META_DATA);
-                icon = Icon.createWithResource(activityPackage, applicationInfo.icon);
-            }
+            Icon icon = selectIcon(context, jsonShortcut).toIcon(context);
 
             JSONObject jsonIntent = jsonShortcut.optJSONObject("intent");
             if (jsonIntent == null) {
                 jsonIntent = new JSONObject();
             }
 
-            Intent intent = parseIntent(jsonIntent);
+            Intent intent = parseIntent(
+                jsonIntent,
+                this.cordova.getActivity().getPackageName(),
+                this.cordova.getActivity().getClass().getName());
 
             return builder
                 .setShortLabel(shortLabel)
@@ -396,33 +404,17 @@ public class ShortcutsPlugin extends CordovaPlugin {
             longLabel = shortLabel;
         }
 
-        IconCompat icon;
-        String iconBitmap = jsonShortcut.optString("iconBitmap");
-        boolean iconAdaptiveBitmap = jsonShortcut.optBoolean("iconAdaptiveBitmap");
-        String iconFromResource = jsonShortcut.optString("iconFromResource");
-
-        String activityPackage = this.cordova.getActivity().getPackageName();
-        if (iconBitmap.length() > 0) {
-            Bitmap bitmap = decodeBase64Bitmap(iconBitmap);
-            icon = iconAdaptiveBitmap && Build.VERSION.SDK_INT >= 26
-                ? IconCompat.createWithAdaptiveBitmap(bitmap)
-                : IconCompat.createWithBitmap(bitmap);
-        } else if (iconFromResource.length() > 0) {
-            Resources activityRes = this.cordova.getActivity().getResources();
-            int iconId = activityRes.getIdentifier(iconFromResource, "drawable", activityPackage);
-            icon = IconCompat.createWithResource(context, iconId);
-        } else {
-            PackageManager pm = context.getPackageManager();
-            ApplicationInfo applicationInfo = pm.getApplicationInfo(activityPackage, PackageManager.GET_META_DATA);
-            icon = IconCompat.createWithResource(context, applicationInfo.icon);
-        }
+        IconCompat icon = selectIcon(context, jsonShortcut);
 
         JSONObject jsonIntent = jsonShortcut.optJSONObject("intent");
         if (jsonIntent == null) {
             jsonIntent = new JSONObject();
         }
 
-        Intent intent = parseIntent(jsonIntent);
+        Intent intent = parseIntent(
+            jsonIntent,
+            this.cordova.getActivity().getPackageName(),
+            this.cordova.getActivity().getClass().getName());
 
         return builder
             .setActivity(intent.getComponent())
@@ -441,7 +433,7 @@ public class ShortcutsPlugin extends CordovaPlugin {
         return ShortcutManagerCompat.requestPinShortcut(context, shortcut, null);
     }
 
-    private static Bitmap decodeBase64Bitmap(
+    static Bitmap decodeBase64Bitmap(
         String input) {
             byte[] decodedByte = Base64.decode(input, 0);
             return BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);

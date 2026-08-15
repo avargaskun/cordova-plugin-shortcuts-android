@@ -102,6 +102,7 @@ var shortcut = {
 	iconBitmap: '<Bitmap for the shortcut icon, base64 encoded>', // Optional; takes precedence over the other icon fields
 	iconAdaptiveBitmap: true, // Optional; use with iconBitmap on Android 8.0+ (API 26+): https://developer.android.com/develop/ui/views/launch/icon_design_adaptive
 	iconFromResource: "ic_playlist_play_red", // Optional alternative; filename w/o extension in res/drawable-* (hdpi,mdpi..)
+	// If the named drawable cannot be found, the application icon is used instead
 	intent: {
 		action: 'android.intent.action.RUN',
 		categories: [
@@ -135,6 +136,7 @@ var shortcut = {
 	iconBitmap: '<Bitmap for the shortcut icon, base64 encoded>', // Optional; takes precedence over the other icon fields
 	iconAdaptiveBitmap: true, // Optional; use with iconBitmap on Android 8.0+ (API 26+): https://developer.android.com/develop/ui/views/launch/icon_design_adaptive
 	iconFromResource: "ic_playlist_play_red", // Optional alternative; filename w/o extension in res/drawable-* (hdpi,mdpi..)
+	// If the named drawable cannot be found, the application icon is used instead
 	intent: {
 		action: 'android.intent.action.RUN',
 		categories: [
@@ -215,6 +217,7 @@ export class ShortCutsService{
 
 ## CHANGES
 
+* v0.2.0 Fall back to the application icon when `iconFromResource` names a drawable that cannot be found, instead of failing or producing an unloadable icon. Apply adaptive bitmap icon rendering (safe-zone masking) to both dynamic and pinned shortcuts on Android 7.1 and below (the compatibility library renders the safe-zone mask itself). Internally, dynamic and pinned shortcuts now share a single icon-selection helper. Adds a Robolectric-based Java test suite under `tests/android` and a GitHub Actions workflow that runs it.
 * v0.1.4 Support adaptive bitmap icons on Android 8.0+ and fix custom bitmap icons being replaced by the application icon. Icon selection now uses `iconBitmap`, then `iconFromResource`, and finally the application icon; the same behavior applies to dynamic and pinned shortcuts.
 * v0.1.3 `getIntent` reports a shortcut only once — the reserved `shortcut` and `shortcut.*` extras are consumed after the first call. Preserve the launch intent on cold start so `getIntent` keeps action and data when another plugin replaces the activity Intent. Add resource templates for static shortcuts
 * v0.1.2 BREAKING: Do not append package name to keys under `Intent.Extras` dictionary

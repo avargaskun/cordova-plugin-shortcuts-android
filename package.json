@@ -1,8 +1,20 @@
 {
   "name": "cordova-plugin-shortcuts-android",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Cordova plugin for Android to create app shortcuts and handle intents.",
   "main": "index.js",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "plugin.xml",
+    "resources/",
+    "shortcuts.d.ts",
+    "src/",
+    "www/"
+  ],
+  "scripts": {
+    "test": "cd tests/android && ./gradlew test"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/avargaskun/cordova-plugin-shortcuts-android.git"
@@ -19,5 +31,8 @@
     "shortcut",
     "intent",
     "android"
-  ]
+  ],
+  "devDependencies": {
+    "cordova-android": "^14.0.0"
+  }
 }
